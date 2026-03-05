@@ -9,15 +9,14 @@ pipeline {
                 } 
             }
             steps {
-                sh 'ls -R'
                 dir('helloworld/backend') {
-                    echo "--- Step 1: Downloading Dependencies & Compiling ---"
-                    // mvn install puts the jar in your local .m2 repo
-                    sh 'mvn clean install -DskipTests' 
-                    
+                    echo "--- Step 1: Running Unit Tests ---"
+                    // 'mvn test' scans src/test/java for any @Test annotations
+                    sh 'mvn test' 
+
                     echo "--- Step 2: Packaging the Application ---"
-                    // mvn package creates the JAR file in the 'target' folder
-                    sh 'mvn package -DskipTests'
+                    // Now we remove -DskipTests because we want our tests to run during packaging too
+                    sh 'mvn clean package' 
                 }
             }
         }
