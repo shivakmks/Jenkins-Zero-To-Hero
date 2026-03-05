@@ -4,6 +4,7 @@ pipeline {
         stage('Maven Build') {
             agent { docker { image 'maven:3.8.1-adoptopenjdk-11' } }
             steps {
+                sh 'ls -R'
                 dir('backend') {
                     echo "--- Step 1: Downloading Dependencies & Compiling ---"
                     // mvn install puts the jar in your local .m2 repo
