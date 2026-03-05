@@ -1,21 +1,48 @@
 pipeline {
-  agent none
-  stages {
-    stage('Back-end') {
-      agent {
-        docker { image 'maven:3.8.1-adoptopenjdk-11' }
-      }
-      steps {
-        sh 'mvn --version'
-      }
+    agent none
+    
+    stages {
+        stage('Compile & Package Backend') {
+            agent {
+                docker { 
+                    image 'maven:3.8.1-adoptopenjdk-11'
+                    // This reuses your local maven cache so it's faster next time
+                    args '-v $HOME/.m2:/var/maven/.m2'
+                }
+            }
+            steps {
+                dir('helloworld/backend') {
+                    echo "Starting Maven Build..."
+                    // 'mvn package' creates the JAR file
+                    sh 'mvn clean package -DskipTests' 
+                    echo "Backend Build Successful!"
+                }
+            }
+        }
+
+        stage('Install Frontend Dependencies') {
+            agent {
+                docker { image 'node:16-alpine' }
+            }
+            steps {
+                dir('helloworld/frontend') {
+                    echo "Starting NPM Install..."
+                    // 'npm install' downloads the JS libraries
+                    sh 'npm install'
+                    // 'npm run build' is often used to minify the JS for production
+                    // sh 'npm run build' 
+                    echo "Frontend Dependencies Installed!"
+                }
+            }
+        }
+
+        stage('Final Artifact Check') {
+            agent { any }
+            steps {
+                echo "Verifying build results..."
+                sh 'ls -l helloworld/backend/target/*.jar'
+                echo "Pipeline Complete! You are now a Build Engineer. 🎓"
+            }
+        }
     }
-    stage('Front-end') {
-      agent {
-        docker { image 'node:16-alpine' }
-      }
-      steps {
-        sh 'node --version'
-      }
-    }
-  }
 }
