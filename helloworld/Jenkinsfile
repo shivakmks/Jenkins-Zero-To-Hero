@@ -37,7 +37,7 @@ pipeline {
         }
 
         stage('Final Artifact Check') {
-            agent { any }
+            agent  any 
             steps {
                 echo "Verifying build results..."
                 sh 'ls -l helloworld/backend/target/*.jar'
