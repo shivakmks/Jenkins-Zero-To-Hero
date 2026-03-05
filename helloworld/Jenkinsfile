@@ -1,47 +1,32 @@
 pipeline {
     agent none
-    
     stages {
-        stage('Compile & Package Backend') {
-            agent {
-                docker { 
-                    image 'maven:3.8.1-adoptopenjdk-11'
-                    // This reuses your local maven cache so it's faster next time
-                    args '-v $HOME/.m2:/var/maven/.m2'
-                }
-            }
+        stage('Maven Build') {
+            agent { docker { image 'maven:3.8.1-adoptopenjdk-11' } }
             steps {
                 dir('backend') {
-                    echo "Starting Maven Build..."
-                    // 'mvn package' creates the JAR file
-                    sh 'mvn clean package -DskipTests' 
-                    echo "Backend Build Successful!"
+                    echo "--- Step 1: Downloading Dependencies & Compiling ---"
+                    // mvn install puts the jar in your local .m2 repo
+                    sh 'mvn clean install -DskipTests' 
+                    
+                    echo "--- Step 2: Packaging the Application ---"
+                    // mvn package creates the JAR file in the 'target' folder
+                    sh 'mvn package -DskipTests'
                 }
             }
         }
-
-        stage('Install Frontend Dependencies') {
-            agent {
-                docker { image 'node:16-alpine' }
-            }
+        stage('NPM Build') {
+            agent { docker { image 'node:16-alpine' } }
             steps {
                 dir('frontend') {
-                    echo "Starting NPM Install..."
-                    // 'npm install' downloads the JS libraries
+                    echo "--- Step 1: Installing node_modules ---"
+                    // This creates the 'node_modules' folder
                     sh 'npm install'
-                    // 'npm run build' is often used to minify the JS for production
-                    // sh 'npm run build' 
-                    echo "Frontend Dependencies Installed!"
+                    
+                    echo "--- Step 2: Running Build Script ---"
+                    // This executes the 'build' script defined in package.json
+                    sh 'npm run build'
                 }
-            }
-        }
-
-        stage('Final Artifact Check') {
-            agent  any 
-            steps {
-                echo "Verifying build results..."
-                sh 'ls -l helloworld/backend/target/*.jar'
-                echo "Pipeline Complete! You are now a Build Engineer. 🎓"
             }
         }
     }
