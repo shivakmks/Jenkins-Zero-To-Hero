@@ -5,7 +5,7 @@ pipeline {
             agent { docker { image 'maven:3.8.1-adoptopenjdk-11' } }
             steps {
                 sh 'ls -R'
-                dir('backend') {
+                dir('helloworld/backend') {
                     echo "--- Step 1: Downloading Dependencies & Compiling ---"
                     // mvn install puts the jar in your local .m2 repo
                     sh 'mvn clean install -DskipTests' 
@@ -19,7 +19,7 @@ pipeline {
         stage('NPM Build') {
             agent { docker { image 'node:16-alpine' } }
             steps {
-                dir('frontend') {
+                dir('helloworld/frontend') {
                     echo "--- Step 1: Installing node_modules ---"
                     // This creates the 'node_modules' folder
                     sh 'npm install'
