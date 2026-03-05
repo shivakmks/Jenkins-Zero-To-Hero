@@ -2,7 +2,12 @@ pipeline {
     agent none
     stages {
         stage('Maven Build') {
-            agent { docker { image 'maven:3.8.1-adoptopenjdk-11' } }
+            agent { 
+                docker { 
+                    image 'maven:3.8.1-adoptopenjdk-11' 
+                    args '-u root:root'
+                } 
+            }
             steps {
                 sh 'ls -R'
                 dir('helloworld/backend') {
