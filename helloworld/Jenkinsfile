@@ -11,7 +11,7 @@ pipeline {
                 }
             }
             steps {
-                dir('helloworld/backend') {
+                dir('backend') {
                     echo "Starting Maven Build..."
                     // 'mvn package' creates the JAR file
                     sh 'mvn clean package -DskipTests' 
@@ -25,7 +25,7 @@ pipeline {
                 docker { image 'node:16-alpine' }
             }
             steps {
-                dir('helloworld/frontend') {
+                dir('frontend') {
                     echo "Starting NPM Install..."
                     // 'npm install' downloads the JS libraries
                     sh 'npm install'
